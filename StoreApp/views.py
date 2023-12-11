@@ -1,6 +1,7 @@
 from django.shortcuts import render
+from django.core.mail import send_mail
 from StoreApp.models import Departamento, Produto
-from StoreApp.forms import ContatoForm
+from StoreApp.forms import ContatoForm, ClienteForm
 
 # Create your views here.
 
@@ -48,10 +49,59 @@ def sobre_empresa(request):
     return render(request, 'institucional.html')
 
 def contato(request):
+    mensagem = ''
+
+    #se o form foi enviado (botão enviar)
+    if request.method == "POST":
+        #recuperando os dados do formulário
+        nome = request.POST['nome']
+        telefone = request.POST['telefone']
+        assunto = request.POST['assunto']
+        mensagem = request.POST['mensagem']
+        remetente = request.POST['email']
+        destinatario = ['profronicosta@gmail.com']
+        corpo = f"Nome: {nome} \nTelefone: {telefone}  \nMensagem: {mensagem}"
+
+        try:
+            #fazer o envio do e-mail
+            send_mail(assunto, corpo, remetente, destinatario)
+            mensagem = 'Mensagem enviada com sucesso :)'
+        except:
+            mensagem = 'Erro ao enviar a Mensagem :('
+
+
+
     formulario = ContatoForm()
 
     context = {
-        'form_contato' : formulario
+        'form_contato' : formulario,
+        'mensagem' : mensagem   
     }
 
     return render(request, 'contato.html', context)
+
+
+def cadastro(request):
+    #instanciar o form cliente
+    
+    mensagem = ''
+
+    if request.method == "POST":
+        formulario = ClienteForm(request.POST)
+        if formulario.is_valid():
+            formulario.save()
+            mensagem = "Cliente cadastrado com sucesso"
+        else:
+            mensagem= "Verifique os erros abaixo:"
+
+    else:
+        formulario = ClienteForm()
+        
+
+    context = {
+        'form_cadastro' : formulario,
+        'mensagem': mensagem
+    }
+
+    return render(request, 'cadastro.html', context)
+
