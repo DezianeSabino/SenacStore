@@ -90,7 +90,8 @@ def cadastro(request):
         formulario = ClienteForm(request.POST)
         if formulario.is_valid():
             formulario.save()
-            mensagem = "Cliente cadastrado com sucesso"
+            formulario = ClienteForm()
+            mensagem = "Cliente cadastrado com sucesso!"
         else:
             mensagem= "Verifique os erros abaixo:"
 
